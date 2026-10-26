@@ -1,5 +1,6 @@
 """Command line parsing for the simulator."""
 import argparse
+import os
 
 CACHE_SIZES = [8 * 2**i for i in range(11)]      # 8 KB to 8192 KB
 BLOCK_SIZES = [8, 16, 32, 64]
@@ -37,6 +38,15 @@ def parse_args(argv=None):
                         help="trace file, one -f per file (1 to 3 files)")
     args = parser.parse_args(argv)
 
-    # TODO: input checks - -u in 0..100, -n is -1 or >= 1, 1 to 3 trace files,
-    #       trace files exist, cache smaller than physical memory
+    if not 0 <= args.os_percent <= 100:
+        parser.error("argument -u: must be between 0 and 100")
+    if args.time_slice != -1 and args.time_slice < 1:
+        parser.error("argument -n: must be -1 (max) or at least 1")
+    if len(args.traces) > 3:
+        parser.error("argument -f: at most 3 trace files")
+    for name in args.traces:
+        if not os.path.isfile(name):
+            parser.error(f"argument -f: can't open trace file '{name}'")
+    if args.cache_kb * 1024 >= args.phys_mb * 1024 * 1024:
+        parser.error("cache size must be smaller than physical memory")
     return args
