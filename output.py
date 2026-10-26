@@ -1,10 +1,11 @@
 """Printing for each section of the output (spec section 4.3)."""
 import os
 
+from calc import COST_PER_KB
 from params import POLICIES
 
 TEAM = 15
-COL = 31  # values line up in this column
+COL = 32  # values line up in this column
 
 
 def line(label, value):
@@ -34,8 +35,16 @@ def print_inputs(p):
 
 
 def print_cache_values(v):
-    # TODO
-    raise NotImplementedError
+    print("***** Cache Calculated Values *****")
+    print()
+    line("Total # Blocks:", v["blocks"])
+    line("Tag Size:", f"{v['tag_bits']} bits")
+    line("Index Size:", f"{v['index_bits']} bits")
+    line("Total # Rows:", v["rows"])
+    line("Overhead Size:", f"{v['overhead']} bytes")
+    line("Implementation Memory Size:", f"{v['impl_kb']:.2f} KB  ({v['impl_bytes']} bytes)")
+    line("Cost:", f"${v['cost']:.2f} @ ${COST_PER_KB:.2f} per KB")
+    print()
 
 
 def print_memory_values(v):
