@@ -2,6 +2,8 @@
 import math
 
 COST_PER_KB = 0.07
+PAGE_SIZE = 4096            # 4 KB pages
+PT_ENTRIES = 512 * 1024     # virtual addresses are 31 bits, so 512K pages per process
 
 
 def cache_values(p):
@@ -35,5 +37,17 @@ def cache_values(p):
 
 def memory_values(p):
     """Physical pages, pages for the system, page table entry size, page table RAM."""
-    # TODO
-    raise NotImplementedError
+    phys_pages = p.phys_mb * 1024 * 1024 // PAGE_SIZE
+    system_pages = int(phys_pages * p.os_percent / 100)
+
+    # a page table entry is a valid bit plus the physical page number
+    pte_bits = 1 + int(math.log2(phys_pages))
+    # one page table per trace file (process)
+    pt_bytes = PT_ENTRIES * len(p.traces) * pte_bits // 8
+
+    return {
+        "phys_pages": phys_pages,
+        "system_pages": system_pages,
+        "pte_bits": pte_bits,
+        "pt_bytes": pt_bytes,
+    }

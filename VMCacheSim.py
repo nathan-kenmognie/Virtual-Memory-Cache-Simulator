@@ -5,8 +5,8 @@ Usage:
     python VMCacheSim.py -s 512 -b 16 -a 4 -r rr -p 1024 -n 100 -u 75 -f Trace1.trc [-f ...]
 """
 from params import parse_args
-from calc import cache_values
-from output import print_header, print_inputs, print_cache_values
+from calc import cache_values, memory_values
+from output import print_header, print_inputs, print_cache_values, print_memory_values
 
 
 def main(argv=None):
@@ -16,7 +16,7 @@ def main(argv=None):
     print_header(p)
     print_inputs(p)
     print_cache_values(cache_values(p))
-    # TODO: physical memory calculated values (calc.memory_values -> output.print_memory_values)
+    print_memory_values(memory_values(p))
 
     # Milestone 2: virtual memory simulation
     # Milestone 3: cache simulation

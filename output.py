@@ -48,5 +48,10 @@ def print_cache_values(v):
 
 
 def print_memory_values(v):
-    # TODO
-    raise NotImplementedError
+    print("***** Physical Memory Calculated Values *****")
+    print()
+    line("Number of Physical Pages:", v["phys_pages"])
+    line("Number of Pages for System:", v["system_pages"])
+    line("Size of Page Table Entry:", f"{v['pte_bits']} bits")
+    line("Total RAM for Page Table(s):", f"{v['pt_bytes']} bytes")
+    print()
