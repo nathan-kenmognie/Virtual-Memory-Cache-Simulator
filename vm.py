@@ -2,7 +2,7 @@
 
 from collections import deque
 
-from calc import PAGE_SIZE, memory_values
+from calc import PAGE_SIZE, PT_ENTRIES, memory_values
 from tracefile import read_trace
 
 
@@ -19,6 +19,17 @@ def simulate(p):
                 access(pid, a, tables, free, stats)
         # TODO: free the process's pages when it ends
 
+    stats["system_pages"] = mem["system_pages"]
+    stats["user_pages"] = mem["phys_pages"] - mem["system_pages"]
+    # TODO: count pages used, not pages still mapped, once pages get freed
+    stats["processes"] = [
+        {
+            "used": len(t),
+            "percent": len(t) * 100 / PT_ENTRIES,
+            "wasted": (PT_ENTRIES - len(t)) * mem["pte_bits"] // 8,
+        }
+        for t in tables
+    ]
     return stats
 
 

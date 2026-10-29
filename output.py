@@ -8,8 +8,8 @@ TEAM = 15
 COL = 32  # values line up in this column
 
 
-def line(label, value):
-    print(f"{label:<{COL}}{value}")
+def line(label, value, col=COL):
+    print(f"{label:<{col}}{value}")
 
 
 def print_header(p):
@@ -55,3 +55,25 @@ def print_memory_values(v):
     line("Size of Page Table Entry:", f"{v['pte_bits']} bits")
     line("Total RAM for Page Table(s):", f"{v['pt_bytes']} bytes")
     print()
+
+
+def print_vm_results(p, v):
+    # some values start one column further right, as in the spec's sample output
+    print("***** VIRTUAL MEMORY SIMULATION RESULTS *****")
+    print()
+    line("Physical Pages Used By SYSTEM:", v["system_pages"])
+    line("Pages Available to User:", v["user_pages"], COL + 1)
+    print()
+    line("Virtual Pages Mapped:", v["mapped"])
+    print("        ------------------------------")
+    line("        Page Table Hits:", v["hits"])
+    line("        Pages from Free:", v["from_free"], COL + 1)
+    line("        Total Page Faults:", v["faults"], COL + 1)
+    print()
+    print("Page Table Usage Per Process:")
+    print("------------------------------")
+    for i, (name, pt) in enumerate(zip(p.traces, v["processes"])):
+        print(f"[{i}] {os.path.basename(name)}:")
+        print(f"        Used Page Table Entries: {pt['used']}  ({pt['percent']:5.2f}%)")
+        print(f"        Page Table Wasted: {pt['wasted']} bytes")
+        print()
