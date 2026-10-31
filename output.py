@@ -1,11 +1,12 @@
-"""Printing for each section of the output (spec section 4.3)."""
+"""Output formatting."""
+
 import os
 
 from calc import COST_PER_KB
 from params import POLICIES
 
 TEAM = 15
-COL = 32  # values line up in this column
+COL = 32  # value column
 
 
 def line(label, value, col=COL):
