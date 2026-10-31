@@ -6,7 +6,14 @@ Usage:
 """
 from params import parse_args
 from calc import cache_values, memory_values
-from output import print_header, print_inputs, print_cache_values, print_memory_values
+from output import (
+    print_header,
+    print_inputs,
+    print_cache_values,
+    print_memory_values,
+    print_vm_results,
+)
+from vm import simulate
 
 
 def main(argv=None):
@@ -19,6 +26,8 @@ def main(argv=None):
     print_memory_values(memory_values(p))
 
     # Milestone 2: virtual memory simulation
+    print_vm_results(p, simulate(p))
+
     # Milestone 3: cache simulation
 
 
