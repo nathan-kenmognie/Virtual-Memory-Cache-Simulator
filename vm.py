@@ -1,6 +1,6 @@
 """Milestone 2 virtual memory simulation."""
 
-from collections import OrderedDict, deque
+from collections import deque
 
 from calc import PAGE_SIZE, PT_ENTRIES, memory_values
 from tracefile import read_trace
@@ -9,10 +9,9 @@ from tracefile import read_trace
 def simulate(p):
     mem = memory_values(p)
     free = deque(range(mem["system_pages"], mem["phys_pages"]))
-    tables = [{} for _ in p.traces]  # virtual page -> physical page
+    tables = [{} for _ in p.traces]  # virtual page -> physical page, oldest first
     used = [set() for _ in p.traces]
-    owners = OrderedDict()  # physical page -> (pid, virtual page)
-    stats = {"mapped": 0, "hits": 0, "from_free": 0, "faults": 0}
+    stats = {"mapped": 0, "hits": 0, "from_free": 0, "faults": 0, "victim": 0}
 
     traces = [list(read_trace(name)) for name in p.traces]
     pos = [0] * len(traces)
@@ -25,16 +24,19 @@ def simulate(p):
             start = pos[pid]
             if p.time_slice == -1:
                 end = len(trace)
+                done = True
             else:
                 end = min(start + p.time_slice, len(trace))
+                # a process ends when it runs out of trace before its slice is over
+                done = end - start < p.time_slice
 
             for address, _, data in trace[start:end]:
                 for a in (address,) + data:
-                    access(pid, a, tables, used, owners, free, stats)
+                    access(pid, a, tables, used, free, stats)
             pos[pid] = end
 
-            if end == len(trace):
-                end_process(pid, tables, owners, free)
+            if done:
+                end_process(pid, tables, free)
                 running.remove(pid)
 
     stats["system_pages"] = mem["system_pages"]
@@ -50,7 +52,7 @@ def simulate(p):
     return stats
 
 
-def access(pid, address, tables, used, owners, free, stats):
+def access(pid, address, tables, used, free, stats):
     stats["mapped"] += 1
     vpn = (address & 0x7FFFFFFF) // PAGE_SIZE
     table = tables[pid]
@@ -63,19 +65,30 @@ def access(pid, address, tables, used, owners, free, stats):
         ppn = free.popleft()
     else:
         stats["faults"] += 1
-        if not owners:
+        victim = pick_victim(pid, tables, stats)
+        if victim is None:
             return
-        # replace the oldest page (FIFO)
-        ppn, (old_pid, old_vpn) = owners.popitem(last=False)
-        del tables[old_pid][old_vpn]
+        # take that process's oldest page
+        old_vpn = next(iter(tables[victim]))
+        ppn = tables[victim].pop(old_vpn)
 
     table[vpn] = ppn
-    owners[ppn] = (pid, vpn)
     used[pid].add(vpn)
 
 
-def end_process(pid, tables, owners, free):
-    for ppn in tables[pid].values():
-        del owners[ppn]
-        free.append(ppn)
+def pick_victim(pid, tables, stats):
+    # start at the process that gave up the last page, skipping ourselves
+    victim = stats["victim"]
+    if victim == pid:
+        victim = (victim + 1) % len(tables)
+    for _ in tables:
+        if tables[victim]:
+            stats["victim"] = victim
+            return victim
+        victim = (victim + 1) % len(tables)
+    return None
+
+
+def end_process(pid, tables, free):
+    free.extend(tables[pid].values())
     tables[pid].clear()
