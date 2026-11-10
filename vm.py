@@ -22,13 +22,13 @@ def simulate(p):
         for pid in list(running):
             trace = traces[pid]
             start = pos[pid]
-            if p.time_slice == -1:
+            if p.time_slice == -1 or start + p.time_slice > len(trace):
+                # not enough trace left for a full slice, so the process finishes
                 end = len(trace)
                 done = True
             else:
-                end = min(start + p.time_slice, len(trace))
-                # a process ends when it runs out of trace before its slice is over
-                done = end - start < p.time_slice
+                end = start + p.time_slice
+                done = False
 
             for address, _, data in trace[start:end]:
                 for a in (address,) + data:
@@ -69,7 +69,7 @@ def access(pid, address, tables, used, free, stats):
         if victim is None:
             return
         # take that process's oldest page
-        old_vpn = next(iter(tables[victim]))
+        old_vpn = list(tables[victim])[0]
         ppn = tables[victim].pop(old_vpn)
 
     table[vpn] = ppn
@@ -77,15 +77,16 @@ def access(pid, address, tables, used, free, stats):
 
 
 def pick_victim(pid, tables, stats):
-    # start at the process that gave up the last page, skipping ourselves
+    # keep taking from the same process as last time, but not from ourselves
+    count = len(tables)
     victim = stats["victim"]
     if victim == pid:
-        victim = (victim + 1) % len(tables)
-    for _ in tables:
-        if tables[victim]:
+        victim = (victim + 1) % count
+    for i in range(count):
+        if len(tables[victim]) > 0:
             stats["victim"] = victim
             return victim
-        victim = (victim + 1) % len(tables)
+        victim = (victim + 1) % count
     return None
 
 
