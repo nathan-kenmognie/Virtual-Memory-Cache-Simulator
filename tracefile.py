@@ -1,5 +1,7 @@
 """Trace file reader."""
 
+# AI use: Claude was used for the initial draft and for helping in reviews.
+
 NO_DATA = "--------"
 
 

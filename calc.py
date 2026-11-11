@@ -1,5 +1,7 @@
 """Milestone 1 calculated values."""
 
+# AI use: Claude was used for the initial draft and for helping in reviews.
+
 import math
 
 COST_PER_KB = 0.07
