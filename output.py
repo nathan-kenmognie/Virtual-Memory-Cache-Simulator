@@ -1,5 +1,7 @@
 """Output formatting."""
 
+# AI use: Claude was used for the initial draft and for helping in reviews.
+
 import os
 
 from calc import COST_PER_KB
