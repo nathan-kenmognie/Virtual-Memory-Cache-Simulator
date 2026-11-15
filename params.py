@@ -1,5 +1,7 @@
 """Command line parsing for the simulator."""
 
+# AI use: Claude was used for the initial draft and for helping in reviews.
+
 import argparse
 import os
 

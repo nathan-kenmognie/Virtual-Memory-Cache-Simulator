@@ -1,5 +1,8 @@
 """Milestone 2 virtual memory simulation."""
 
+# AI use: Claude was used for the initial draft and for helping in reviews.
+# We also used Claude to analyze the simulator (VMCacheSim_v1.0.exe) and its results, so the page fault handling here matches it.
+
 from collections import deque
 
 from calc import PAGE_SIZE, PT_ENTRIES, memory_values

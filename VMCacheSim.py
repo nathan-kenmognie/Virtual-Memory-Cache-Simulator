@@ -4,6 +4,9 @@ CS 3853 Computer Architecture - Team 15
 Usage:
     python VMCacheSim.py -s 512 -b 16 -a 4 -r rr -p 1024 -n 100 -u 75 -f Trace1.trc [-f ...]
 """
+
+# AI use: Claude was used for the initial draft and for helping in reviews.
+
 from params import parse_args
 from calc import cache_values, memory_values
 from output import (
